@@ -38,12 +38,14 @@ if (BUILD_SHARED_LIBS)
 else (BUILD_SHARED_LIBS)
   set(protobuf_BUILD_SHARED_LIBS_DEFAULT OFF)
 endif (BUILD_SHARED_LIBS)
+set(protobuf_BUILD_SHARED_LIBS_DEFAULT OFF)
 option(protobuf_BUILD_SHARED_LIBS "Build Shared Libraries" ${protobuf_BUILD_SHARED_LIBS_DEFAULT})
 include(CMakeDependentOption)
 cmake_dependent_option(protobuf_MSVC_STATIC_RUNTIME "Link static runtime libraries" ON
   "NOT protobuf_BUILD_SHARED_LIBS" OFF)
-set(protobuf_WITH_ZLIB_DEFAULT ON)
+set(protobuf_WITH_ZLIB_DEFAULT OFF)
 option(protobuf_WITH_ZLIB "Build with zlib support" ${protobuf_WITH_ZLIB_DEFAULT})
+set(protobuf_WITH_ZLIB OFF CACHE BOOL "Build protobuf with ZLib" FORCE)
 set(protobuf_DEBUG_POSTFIX "d"
   CACHE STRING "Default debug postfix")
 mark_as_advanced(protobuf_DEBUG_POSTFIX)
@@ -52,8 +54,9 @@ include(protobuf-options.cmake)
 
 # Path to main configure script
 set(protobuf_CONFIGURE_SCRIPT "../configure.ac")
-
 # Parse configure script
+find_package(OpenEnclave CONFIG REQUIRED)
+
 set(protobuf_AC_INIT_REGEX
   "^AC_INIT\\(\\[([^]]+)\\],\\[([^]]+)\\],\\[([^]]+)\\],\\[([^]]+)\\]\\)$")
 file(STRINGS "${protobuf_CONFIGURE_SCRIPT}" protobuf_AC_INIT_LINE
@@ -106,7 +109,7 @@ if (CMAKE_USE_PTHREADS_INIT)
   add_definitions(-DHAVE_PTHREAD)
 endif (CMAKE_USE_PTHREADS_INIT)
 
-set(_protobuf_FIND_ZLIB)
+set(_protobuf_FIND_ZLIB 0)
 if (protobuf_WITH_ZLIB)
   find_package(ZLIB)
   if (ZLIB_FOUND)
